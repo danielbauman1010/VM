@@ -14,6 +14,7 @@ class VM {
     var rPC: Int?
     var rCP: Int?
     var rST: Int?
+    var retAdress: Int? //return address
     var exitCode: Int
     var stack: Stack
     enum commands {
@@ -29,6 +30,7 @@ class VM {
         case aojz, aojnz
         case cmpir, cmprr, cmpmr
         case jmpn, jmpz, jmpp
+        case jsr, ret
         case push, pop, stackc
         case outci, outcr, outcx, outcb
         case movrx, movxx
@@ -49,6 +51,7 @@ class VM {
         31: commands.aojz, 32: commands.aojnz,
         33: commands.cmpir, 34: commands.cmprr, 35: commands.cmpmr,
         36: commands.jmpn, 37: commands.jmpz, 38: commands.jmpp,
+        39: commands.jsr, 40: commands.ret,
         41: commands.push, 42: commands.pop, 43: commands.stackc,
         44: commands.outci, 45: commands.outcr, 46: commands.outcx, 47: commands.outcb,
         53: .movrx, 54: .movxx,
@@ -57,14 +60,15 @@ class VM {
         57: commands.jmpne
     ]
     init() {
-        memory = [Int](count: 1000, repeatedValue: 0)
-        registers = [Int](count: 10, repeatedValue: 0)
-        output = ""
-        rPC = nil
-        rCP = nil
-        rST = nil
-        exitCode = 0
+        self.memory = [Int](count: 1000, repeatedValue: 0)
+        self.registers = [Int](count: 10, repeatedValue: 0)
+        self.output = ""
+        self.rPC = nil
+        self.rCP = nil
+        self.rST = nil
+        self.exitCode = 0
         self.stack = Stack(size: 1000)
+        self.retAdress = nil
     }
 
     func processFile(var lines: [String])->String {
@@ -692,6 +696,28 @@ class VM {
                     ccounter = location
                 }
                 return ccounter
+            case .jsr:
+                self.retAdress = ccounter
+                ccounter = ccounter + 1
+                let location = memory[ccounter]
+                if location < 0 && location > self.memory.count {
+                    self.exitCode = 2
+                    return nil
+                }
+                for r in Range(start: 5,end: 9){
+                    self.stack.push(registers[r])
+                }
+                ccounter = location
+                return ccounter
+            case .ret:
+                if self.retAdress == nil{
+                    self.output += "Fatal error: trying to return without entering a subroutine"
+                    return nil
+                }
+                for r in Range(start: 9,end: 5){
+                    registers[r] = self.stack.pop()!
+                }
+                ccounter = self.retAdress!
             case .push:
                 ccounter = ccounter + 1
                 let r1 = memory[ccounter]
@@ -717,7 +743,7 @@ class VM {
                     registers[r1] = result
                     self.rST = 0
                 } else {
-                    self.rST = 1
+                    self.rST = 2
                 }
                 ccounter = ccounter + 1
                 return ccounter
