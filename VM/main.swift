@@ -51,7 +51,7 @@ while run{
         case .asm:
             print("not supported yet.")
         case .run:
-            print(vm.processFile(readTextFileFromDiskMac(parts[1]).split("\n")))
+            vm.processFile(readTextFileFromDiskMac(parts[1]).split("\n"))
         case .debug:
             print("not supported yet.")
         case .exit:

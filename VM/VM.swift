@@ -10,7 +10,6 @@ import Foundation
 class VM {
     var memory: [Int]
     var registers: [Int]
-    var output: String
     var rPC: Int?
     var rCP: Int?
     var rST: Int?
@@ -62,7 +61,6 @@ class VM {
     init() {
         self.memory = [Int](count: 1000, repeatedValue: 0)
         self.registers = [Int](count: 10, repeatedValue: 0)
-        self.output = ""
         self.rPC = nil
         self.rCP = nil
         self.rST = nil
@@ -71,9 +69,8 @@ class VM {
         self.retAdress = nil
     }
 
-    func processFile(var lines: [String])->String {
+    func processFile(var lines: [String]){
         var iterations: Int = 0
-        self.output = ""
         self.exitCode = 0
         if let _: Int? = Int(lines.removeFirst()) {
             if let counter = Int(lines.removeFirst()) {
@@ -85,11 +82,11 @@ class VM {
                         }
                         
                         switch exitCode{
-                        case 1: self.output += "\nFatal Error: Devide by 0"
-                        case 2: self.output += "\nFatal Error: Attempt to access non-existent memory"
-                        case 3: self.output += "\nFatal Error: Attempt to access non-existent register"
-                        case 4: self.output += "\nFatal Error: Attempt to execute illegal operation"
-                        default: self.output += "\nProgram ended successfully"
+                        case 1: print("\nFatal Error: Devide by 0")
+                        case 2: print("\nFatal Error: Attempt to access non-existent memory")
+                        case 3: print("\nFatal Error: Attempt to access non-existent register")
+                        case 4: print("\nFatal Error: Attempt to execute illegal operation")
+                        default: print("\nProgram ended successfully")
                         }
                         
                     } else {
@@ -97,20 +94,7 @@ class VM {
                     }
             }
         }
-        /*self.output += "\nmemory:\n["
-        for element in memory {
-            self.output += "\(element),"
-        }
-        self.output += "]\n"
-        self.output += "registers:\n["
-        for r in registers {
-            self.output += "\(r),"
-        }
-        self.output += "]\n"
-        self.output += "special registers:\n"
-        self.output += "rPC: \(self.rPC), rCP: \(rCP)\n"
-        self.output += "iterations:\t\(iterations)"*/
-        return self.output
+        
     }
     
     func executeCommand(var ccounter: Int)->Int? {
@@ -673,6 +657,7 @@ class VM {
                 if self.rCP < 0 {
                     ccounter = location
                 }
+                ccounter = ccounter + 1
                 return ccounter
             case .jmpz:
                 ccounter = ccounter + 1
@@ -684,6 +669,7 @@ class VM {
                 if self.rCP == 0 {
                     ccounter = location
                 }
+                ccounter = ccounter + 1
                 return ccounter
             case .jmpp:
                 ccounter = ccounter + 1
@@ -695,6 +681,7 @@ class VM {
                 if self.rCP > 0 {
                     ccounter = location
                 }
+                ccounter = ccounter + 1
                 return ccounter
             case .jsr:
                 self.retAdress = ccounter
@@ -711,7 +698,7 @@ class VM {
                 return ccounter
             case .ret:
                 if self.retAdress == nil{
-                    self.output += "Fatal error: trying to return without entering a subroutine"
+                    print("Fatal error: trying to return without entering a subroutine")
                     return nil
                 }
                 for r in Range(start: 9,end: 5){
@@ -759,7 +746,7 @@ class VM {
                 ccounter = ccounter + 1
                 let char = memory[ccounter]
                 let character = "\(String(UnicodeScalar(char)))"
-                self.output += character
+                print("\(character)", terminator:   "")
                 ccounter = ccounter + 1
                 return ccounter
             case .outcr:
@@ -770,7 +757,7 @@ class VM {
                     return nil
                 }
                 let character = "\(String(UnicodeScalar(registers[r1])))"
-                self.output += character
+                print("\(character)", terminator:   "")
                 ccounter = ccounter + 1
                 return ccounter
             case .outcx:
@@ -785,7 +772,7 @@ class VM {
                     return nil
                 }
                 let character = "\(String(UnicodeScalar(memory[registers[r1]])))"
-                self.output += character
+                print("\(character)", terminator:   "")
                 ccounter = ccounter + 1
                 return ccounter
             case .outcb:
@@ -811,7 +798,7 @@ class VM {
                 }
                 for i in Range(start: registers[r1], end: registers[r1]+registers[r2]) {
                     let character = "\(String(UnicodeScalar(memory[i])))"
-                    self.output += character
+                    print("\(character)", terminator:   "")
                 }
                 ccounter = ccounter + 1
                 return ccounter
@@ -822,7 +809,7 @@ class VM {
                     exitCode = 3
                     return nil
                 }
-                self.output += "\(registers[r1])"
+                print("\(registers[r1])", terminator:   "")
                 ccounter = ccounter + 1
                 return ccounter
             case .movrx:
@@ -872,7 +859,7 @@ class VM {
                 for counter in beginning...end {
                     let charascii = memory[counter]
                     let character = String(UnicodeScalar(charascii))
-                    self.output += character
+                    print("\(character)", terminator:   "")
                 }
                 ccounter = ccounter + 1
                 return ccounter

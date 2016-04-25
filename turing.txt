@@ -1,0 +1,61 @@
+.Start PrintTuples
+
+.tuple \ 0 _ 0 _ r \
+.tuple \ 1 _ 1 _ r \
+.tuple \ 0 1 1 1 r \
+.tuple \ 1 1 1 1 l \
+
+TupleMess:	.String "Tuples:"
+TAB:	.Integer #9
+NewLine:	.Integer #10
+
+;r1 will contain the current location in memory
+;r2 will contain the current character
+;r3 will contain the TAB character
+;r4 will contain the newline character
+
+PrintTuples:	movmr NewLine r4
+		movmr TAB r3
+		outs TupleMess
+		outcr r4
+		movir #0 r1
+PrintTuple:	movxr r1 r2
+		printi r2
+		outcr r3
+		addir #1 r1
+		movxr r1 r2
+		outcr r2
+		outcr r3
+		addir #1 r1
+		movxr r1 r2
+		printi r2
+		outcr r3
+		addir #1 r1
+		movxr r1 r2
+		outcr r2
+		outcr r3
+		addir #1 r1
+		movxr r1 r2
+		cmpir #0 r2
+		jmpz PrintLeft
+		jmpne PrintRight
+		
+Fin:	halt
+	.end	
+PrintRight:	movir #114 r5
+		outcr r5
+		addir #5 r1
+		movxr r1 r2
+		cmpir #1 r2
+		jmpp Fin
+		subir #4 r1
+		jmp PrintTuple
+PrintLeft:	movir #108 r5
+		outcr r5
+		addir #5 r1
+		movxr r1 r2
+		cmpir #1 r2
+		jmpp Fin
+		subir #4 r1
+		jmp PrintTuple
+		

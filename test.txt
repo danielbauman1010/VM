@@ -1,0 +1,33 @@
+.Start Fib
+Begin: .Integer #1	;First number
+End: .Integer #21	;Last number
+NewLine:	.Integer #10
+Title:	.String "The fibonacci series"
+Sep: .String ", "
+
+;r0 first number
+;r1 second number
+;r2 next number
+;r3 last number
+;r9 new line
+
+Fib:	movmr Begin r0
+	movmr Begin r1
+	movmr End r3
+	movmr NewLine r9
+	outs Title
+	outcr r9
+	printi r0
+	outs Sep
+	printi r1
+
+Loop:	outs Sep
+	movrr r0 r2
+	addrr r1 r2
+	printi r2
+	movrr r1 r0		
+	movrr r2 r1		
+	cmprr r2 r3
+	jmpne Loop
+Fin:	halt
+	.end
