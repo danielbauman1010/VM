@@ -1,6 +1,6 @@
 .Start PrintTuples
 NumberOfTuples:	.Integer #5
-Tape:			.String "_010101_"
+Tape:			.String "_101010_"
 InitialState:	.Integer #0
 InitialHead:	.Integer #0
 Tuples: 	.tuple \ 0 _ 0 _ r \
@@ -105,6 +105,8 @@ Exec:	movar Tape r5
 		movrr r1 r6
 		movmr NumberOfTuples r8		
 		movir #0 r9
+		jsr PrintTape
+		jsr PrintLine
 CheckForTuple:	movrr r9 r1
 				movxr r5 r7		
 				jsr FindTuple
@@ -121,7 +123,7 @@ SameState:	cmprr r1 r7
 Match:		movrr r2 r6
 			movrx r3 r5
 			addrr r4 r5
-			outs Tape
+			jsr PrintTape
 			jsr PrintLine
 			movmr NumberOfTuples r8
 			movir #0 r9
@@ -132,11 +134,36 @@ PrintTab:	movmr TAB r5
 PrintLine:	movmr NewLine r5
 			outcr r5
 			ret
-End:	halt
+;r5 will contain the current position in the tape
+;r6 will contain the characters left to iterate
+;r7 will contain the current address
+;r8 will contain the current character
+;r9 will contain the [ character or the ] character
+PrintTape:	movmr Tape r6		
+			movar Tape r7
+			addir #1 r7
+Loop:		movxr r7 r8
+			cmprr r7 r5
+			jmpz PrintCurrent
+			outcr r8
+			addir #1 r7
+			sojnz r6 Loop
+			ret
+PrintCurrent:	movir #91 r9
+				outcr r9
+				outcr r8
+				movir #93 r9
+				outcr r9
+				addir  #1 r7
+				sojnz r6 Loop
+				ret		
+End:	jsr PrintLine
+		outs Tape
+		halt
 		.end	
 .Start PrintTuples
 NumberOfTuples:	.Integer #5
-Tape:			.String "_010101_"
+Tape:			.String "_101010_"
 InitialState:	.Integer #0
 InitialHead:	.Integer #0
 Tuples: 	.tuple \ 0 _ 0 _ r \
@@ -241,6 +268,8 @@ Exec:	movar Tape r5
 		movrr r1 r6
 		movmr NumberOfTuples r8		
 		movir #0 r9
+		jsr PrintTape
+		jsr PrintLine
 CheckForTuple:	movrr r9 r1
 				movxr r5 r7		
 				jsr FindTuple
@@ -257,7 +286,7 @@ SameState:	cmprr r1 r7
 Match:		movrr r2 r6
 			movrx r3 r5
 			addrr r4 r5
-			outs Tape
+			jsr PrintTape
 			jsr PrintLine
 			movmr NumberOfTuples r8
 			movir #0 r9
@@ -268,5 +297,30 @@ PrintTab:	movmr TAB r5
 PrintLine:	movmr NewLine r5
 			outcr r5
 			ret
-End:	halt
+;r5 will contain the current position in the tape
+;r6 will contain the characters left to iterate
+;r7 will contain the current address
+;r8 will contain the current character
+;r9 will contain the [ character or the ] character
+PrintTape:	movmr Tape r6		
+			movar Tape r7
+			addir #1 r7
+Loop:		movxr r7 r8
+			cmprr r7 r5
+			jmpz PrintCurrent
+			outcr r8
+			addir #1 r7
+			sojnz r6 Loop
+			ret
+PrintCurrent:	movir #91 r9
+				outcr r9
+				outcr r8
+				movir #93 r9
+				outcr r9
+				addir  #1 r7
+				sojnz r6 Loop
+				ret		
+End:	jsr PrintLine
+		outs Tape
+		halt
 		.end	
