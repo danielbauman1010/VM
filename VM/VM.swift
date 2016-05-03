@@ -662,6 +662,7 @@ class VM {
             case .jmpz:
                 ccounter = ccounter + 1
                 let location = memory[ccounter]
+                ccounter = ccounter + 1
                 if location < 0 && location > self.memory.count {
                     self.exitCode = 2
                     return nil
@@ -669,7 +670,7 @@ class VM {
                 if self.rCP == 0 {
                     ccounter = location
                 }
-                ccounter = ccounter + 1
+                
                 return ccounter
             case .jmpp:
                 ccounter = ccounter + 1
@@ -684,16 +685,18 @@ class VM {
                 ccounter = ccounter + 1
                 return ccounter
             case .jsr:
-                self.retAdress = ccounter
                 ccounter = ccounter + 1
+                self.retAdress = ccounter
                 let location = memory[ccounter]
                 if location < 0 && location > self.memory.count {
                     self.exitCode = 2
                     return nil
                 }
-                for r in Range(start: 5,end: 9){
-                    self.stack.push(registers[r])
-                }
+                self.stack.push(registers[5])
+                self.stack.push(registers[6])
+                self.stack.push(registers[7])
+                self.stack.push(registers[8])
+                self.stack.push(registers[9])
                 ccounter = location
                 return ccounter
             case .ret:
@@ -701,10 +704,14 @@ class VM {
                     print("Fatal error: trying to return without entering a subroutine")
                     return nil
                 }
-                for r in Range(start: 9,end: 5){
-                    registers[r] = self.stack.pop()!
-                }
+                registers[9] = self.stack.pop()!
+                registers[8] = self.stack.pop()!
+                registers[7] = self.stack.pop()!
+                registers[6] = self.stack.pop()!
+                registers[5] = self.stack.pop()!
                 ccounter = self.retAdress!
+                ccounter = ccounter + 1
+                return ccounter
             case .push:
                 ccounter = ccounter + 1
                 let r1 = memory[ccounter]

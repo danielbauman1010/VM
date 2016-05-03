@@ -1,114 +1,248 @@
 .Start PrintTuples
-.tuple \ 0 _ 0 _ r \
-.tuple \ 1 _ 1 _ r \
-.tuple \ 0 1 1 1 r \
-.tuple \ 1 1 1 1 l \
-TupleMess:	.String "Tuples:"
-TAB:	.Integer #9
+NumberOfTuples:	.Integer #5
+Tape:			.String "_010101_"
+InitialState:	.Integer #0
+InitialHead:	.Integer #0
+Tuples: 	.tuple \ 0 _ 0 _ r \
+			.tuple \ 0 0 1 1 r \
+			.tuple \ 0 1 1 0 r \
+			.tuple \ 1 0 1 1 r \
+			.tuple \ 1 1 1 0 r \
+TupleMess:		.String "Tuples:"
+ExecMess:		.String "Begin execution:"
+InitStateMess:	.String "Initial State:"
+InitHeadMess:	.String "Initial Head Position:"
+InitTapeMess:	.String "Initial Tape:"
+MatchMess:		.String "Match!"
+TAB:		.Integer #9
 NewLine:	.Integer #10
 ;r1 will contain the current location in memory
 ;r2 will contain the current character
 ;r3 will contain the TAB character
 ;r4 will contain the newline character
+;r5 will contain the NumberOfTuples
+;r6 will contain the number of tuples left to print
 PrintTuples:	movmr NewLine r4
-		movmr TAB r3
-		outs TupleMess
-		outcr r4
-		movir #0 r1
+				movmr TAB r3
+				outs TupleMess
+				outcr r4
+				movar Tuples r1
+				movmr NumberOfTuples r5
+				movmr NumberOfTuples r6
 PrintTuple:	movxr r1 r2
-		printi r2
-		outcr r3
-		addir #1 r1
-		movxr r1 r2
-		outcr r2
-		outcr r3
-		addir #1 r1
-		movxr r1 r2
-		printi r2
-		outcr r3
-		addir #1 r1
-		movxr r1 r2
-		outcr r2
-		outcr r3
-		addir #1 r1
-		movxr r1 r2
-		cmpir #0 r2
-		jmpz PrintLeft
-		jmpne PrintRight
-		
+			printi r2
+			outcr r3
+			addir #1 r1
+			movxr r1 r2
+			outcr r2
+			outcr r3
+			addir #1 r1
+			movxr r1 r2
+			printi r2
+			outcr r3
+			addir #1 r1
+			movxr r1 r2
+			outcr r2
+			outcr r3
+			addir #1 r1
+			movxr r1 r2
+			cmpir #0 r2
+			jmpz PrintLeft
+			jmpne PrintRight
+;r7 will contain the r or l character
+PrintRight:	movir #114 r7
+			outcr r7
+			outcr r4
+			addir #1 r1
+			sojnz r6 PrintTuple
+			jmp PrintBegin
+PrintLeft:	movir #108 r7
+			outcr r7
+			outcr r4
+			addir #1 r1
+			sojnz r6 PrintTuple
+;r1 will contain the initial state
+;r2 will contain the initial head position
+PrintBegin:	outs ExecMess
+			outcr r4
+			movmr InitialState r1
+			movmr InitialHead r2
+			outcr r3
+			outs InitStateMess
+			outcr r3
+			printi r1	
+			outcr r4
+			outcr r3
+			outs InitHeadMess
+			outcr r3
+			printi r2
+			outcr r4
+			outcr r3
+			outs InitTapeMess
+			outcr r3
+			outs Tape
+;r1 will contain the current state
+;r2 will contain the current head position
+;r3 will contain the input
+;r4 will contain the address of the Tape
+;r5 will contain the address of the current tuple
+;r6 will contain the number of tuples left to iterate
+;r7 will contain the current tuple state
+;r8 will contain the current tuple input
+;r9 will contain the new line character
+Exec:	movar Tape r4
+		addrr r4 r2
+		addir #1 r2
+		movxr r2 r3
+		movmr NewLine r9
+ChooseTuple:	movar Tuples r5
+				movmr NumberOfTuples r6				
+CheckTuple:		movxr r5 r7
+				addir #1 r5
+				movxr r5 r8
+Compare:		cmprr r1 r7
+				jmpz SameState
+				addir #5 r5		
 Fin:	halt
-	.end	
-PrintRight:	movir #114 r5
-		outcr r5
-		addir #5 r1
-		movxr r1 r2
-		cmpir #1 r2
-		jmpp Fin
-		subir #4 r1
-		jmp PrintTuple
-PrintLeft:	movir #108 r5
-		outcr r5
-		addir #5 r1
-		movxr r1 r2
-		cmpir #1 r2
-		jmpp Fin
-		subir #4 r1
-		jmp PrintTuple
-		
+						
+SameState:	cmprr r3 r8
+			jmpz Match
+			addir #4 r5			
+			sojnz r6 CheckTuple
+			
+Match:	addir #1 r5
+		movxr r5 r1
+		addir #1 r5
+		movxx r5 r2
+		movxr r5 r3
+		addir #1 r5
+		addxr r5 r2
+		addir #1 r5
+		outcr r9
+		outs Tape
+		jmp ChooseTuple		
+.end
 .Start PrintTuples
-.tuple \ 0 _ 0 _ r \
-.tuple \ 1 _ 1 _ r \
-.tuple \ 0 1 1 1 r \
-.tuple \ 1 1 1 1 l \
-TupleMess:	.String "Tuples:"
-TAB:	.Integer #9
+NumberOfTuples:	.Integer #5
+Tape:			.String "_010101_"
+InitialState:	.Integer #0
+InitialHead:	.Integer #0
+Tuples: 	.tuple \ 0 _ 0 _ r \
+			.tuple \ 0 0 1 1 r \
+			.tuple \ 0 1 1 0 r \
+			.tuple \ 1 0 1 1 r \
+			.tuple \ 1 1 1 0 r \
+TupleMess:		.String "Tuples:"
+ExecMess:		.String "Begin execution:"
+InitStateMess:	.String "Initial State:"
+InitHeadMess:	.String "Initial Head Position:"
+InitTapeMess:	.String "Initial Tape:"
+MatchMess:		.String "Match!"
+TAB:		.Integer #9
 NewLine:	.Integer #10
 ;r1 will contain the current location in memory
 ;r2 will contain the current character
 ;r3 will contain the TAB character
 ;r4 will contain the newline character
+;r5 will contain the NumberOfTuples
+;r6 will contain the number of tuples left to print
 PrintTuples:	movmr NewLine r4
-		movmr TAB r3
-		outs TupleMess
-		outcr r4
-		movir #0 r1
+				movmr TAB r3
+				outs TupleMess
+				outcr r4
+				movar Tuples r1
+				movmr NumberOfTuples r5
+				movmr NumberOfTuples r6
 PrintTuple:	movxr r1 r2
-		printi r2
-		outcr r3
-		addir #1 r1
-		movxr r1 r2
-		outcr r2
-		outcr r3
-		addir #1 r1
-		movxr r1 r2
-		printi r2
-		outcr r3
-		addir #1 r1
-		movxr r1 r2
-		outcr r2
-		outcr r3
-		addir #1 r1
-		movxr r1 r2
-		cmpir #0 r2
-		jmpz PrintLeft
-		jmpne PrintRight
-		
+			printi r2
+			outcr r3
+			addir #1 r1
+			movxr r1 r2
+			outcr r2
+			outcr r3
+			addir #1 r1
+			movxr r1 r2
+			printi r2
+			outcr r3
+			addir #1 r1
+			movxr r1 r2
+			outcr r2
+			outcr r3
+			addir #1 r1
+			movxr r1 r2
+			cmpir #0 r2
+			jmpz PrintLeft
+			jmpne PrintRight
+;r7 will contain the r or l character
+PrintRight:	movir #114 r7
+			outcr r7
+			outcr r4
+			addir #1 r1
+			sojnz r6 PrintTuple
+			jmp PrintBegin
+PrintLeft:	movir #108 r7
+			outcr r7
+			outcr r4
+			addir #1 r1
+			sojnz r6 PrintTuple
+;r1 will contain the initial state
+;r2 will contain the initial head position
+PrintBegin:	outs ExecMess
+			outcr r4
+			movmr InitialState r1
+			movmr InitialHead r2
+			outcr r3
+			outs InitStateMess
+			outcr r3
+			printi r1	
+			outcr r4
+			outcr r3
+			outs InitHeadMess
+			outcr r3
+			printi r2
+			outcr r4
+			outcr r3
+			outs InitTapeMess
+			outcr r3
+			outs Tape
+;r1 will contain the current state
+;r2 will contain the current head position
+;r3 will contain the input
+;r4 will contain the address of the Tape
+;r5 will contain the address of the current tuple
+;r6 will contain the number of tuples left to iterate
+;r7 will contain the current tuple state
+;r8 will contain the current tuple input
+;r9 will contain the new line character
+Exec:	movar Tape r4
+		addrr r4 r2
+		addir #1 r2
+		movxr r2 r3
+		movmr NewLine r9
+ChooseTuple:	movar Tuples r5
+				movmr NumberOfTuples r6				
+CheckTuple:		movxr r5 r7
+				addir #1 r5
+				movxr r5 r8
+Compare:		cmprr r1 r7
+				jmpz SameState
+				addir #5 r5		
 Fin:	halt
-	.end	
-PrintRight:	movir #114 r5
-		outcr r5
-		addir #5 r1
-		movxr r1 r2
-		cmpir #1 r2
-		jmpp Fin
-		subir #4 r1
-		jmp PrintTuple
-PrintLeft:	movir #108 r5
-		outcr r5
-		addir #5 r1
-		movxr r1 r2
-		cmpir #1 r2
-		jmpp Fin
-		subir #4 r1
-		jmp PrintTuple
-		
+						
+SameState:	cmprr r3 r8
+			jmpz Match
+			addir #4 r5			
+			sojnz r6 CheckTuple
+			
+Match:	addir #1 r5
+		movxr r5 r1
+		addir #1 r5
+		movxx r5 r2
+		movxr r5 r3
+		addir #1 r5
+		addxr r5 r2
+		addir #1 r5
+		outcr r9
+		outs Tape
+		jmp ChooseTuple		
+.end
