@@ -26,29 +26,29 @@ NewLine:	.Integer #10
 ;r5 will contain the number of tuples left to iterate
 ;r6 will contain the current tuple to print(starting on 0)
 PrintTuples:	outs TupleMess
-				jsr PrintLine
-				movmr NumberOfTuples r5
-				movir #0 r6				
-PrintTuple:		jmp Print
-Next:			jsr PrintLine
-				addir #1 r6
-				movrr r6 r1
-				sojnz r5 Print
-				jmp PrintBegin
+		jsr PrintLine
+		movmr NumberOfTuples r5
+		movir #0 r6				
+PrintTuple:	jmp Print
+Next:	jsr PrintLine
+	addir #1 r6
+	movrr r6 r1
+	sojnz r5 Print
+	jmp PrintBegin
 				
 ;r0-r4 will contain the tuple's data
-Print:		jsr FindTuple
-			printi r0
-			jsr PrintTab
-			outcr r1
-			jsr PrintTab
-			printi r2
-			jsr PrintTab
-			outcr r3
-			jsr PrintTab
-			cmpir #1 r4
-			jmpz PrintRight
-			jmp PrintLeft
+Print:	jsr FindTuple
+	printi r0
+	jsr PrintTab
+	outcr r1
+	jsr PrintTab
+	printi r2
+	jsr PrintTab
+	outcr r3
+	jsr PrintTab
+	cmpir #1 r4
+	jmpz PrintRight
+	jmp PrintLeft
 PrintRight:	movir #114 r7
 			outcr r7			
 			jmp Next
@@ -180,7 +180,6 @@ PrintR:		movir #114 r7
 PrintL:		movir #108 r7
 			outcr r7			
 			jmp Return
-				
 PrintCurrent:	movir #91 r9
 				outcr r9
 				outcr r8
@@ -228,29 +227,29 @@ NewLine:	.Integer #10
 ;r5 will contain the number of tuples left to iterate
 ;r6 will contain the current tuple to print(starting on 0)
 PrintTuples:	outs TupleMess
-				jsr PrintLine
-				movmr NumberOfTuples r5
-				movir #0 r6				
-PrintTuple:		jmp Print
-Next:			jsr PrintLine
-				addir #1 r6
-				movrr r6 r1
-				sojnz r5 Print
-				jmp PrintBegin
+		jsr PrintLine
+		movmr NumberOfTuples r5
+		movir #0 r6				
+PrintTuple:	jmp Print
+Next:	jsr PrintLine
+	addir #1 r6
+	movrr r6 r1
+	sojnz r5 Print
+	jmp PrintBegin
 				
 ;r0-r4 will contain the tuple's data
-Print:		jsr FindTuple
-			printi r0
-			jsr PrintTab
-			outcr r1
-			jsr PrintTab
-			printi r2
-			jsr PrintTab
-			outcr r3
-			jsr PrintTab
-			cmpir #1 r4
-			jmpz PrintRight
-			jmp PrintLeft
+Print:	jsr FindTuple
+	printi r0
+	jsr PrintTab
+	outcr r1
+	jsr PrintTab
+	printi r2
+	jsr PrintTab
+	outcr r3
+	jsr PrintTab
+	cmpir #1 r4
+	jmpz PrintRight
+	jmp PrintLeft
 PrintRight:	movir #114 r7
 			outcr r7			
 			jmp Next
@@ -382,7 +381,6 @@ PrintR:		movir #114 r7
 PrintL:		movir #108 r7
 			outcr r7			
 			jmp Return
-				
 PrintCurrent:	movir #91 r9
 				outcr r9
 				outcr r8

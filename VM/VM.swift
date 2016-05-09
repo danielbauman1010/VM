@@ -16,25 +16,7 @@ class VM {
     var exitCode: Int
     var stack: Stack
     enum commands {
-        case halt
-        case clrr, clrx, clrm, clrb
-        case movir, movrr,movrm, movmr, movxr, movar, movb
-        case addir, addrr, addmr, addxr
-        case subir, subrr, submr, subxr
-        case mulir, mulrr, mulmr, mulxr
-        case divir, divrr, divmr, divxr
-        case jmp
-        case sojz, sojnz
-        case aojz, aojnz
-        case cmpir, cmprr, cmpmr
-        case jmpn, jmpz, jmpp
-        case jsr, ret
-        case push, pop, stackc
-        case outci, outcr, outcx, outcb
-        case readi, readc, readln
-        case movrx, movxx
-        case printi, outs
-        case jmpne
+        case halt, clrr, clrx, clrm, clrb, movir, movrr,movrm, movmr, movxr, movar, movb, addir, addrr, addmr, addxr, subir, subrr, submr, subxr, mulir, mulrr, mulmr, mulxr, divir, divrr, divmr, divxr, jmp, sojz, sojnz, aojz, aojnz, cmpir, cmprr, cmpmr, jmpn, jmpz, jmpp, jsr, ret, push, pop, stackc, outci, outcr, outcx, outcb, readi, readc, readln, movrx, movxx, printi, outs, jmpne
     }
     
     func getLineFromConsoleMac()->String{
@@ -699,12 +681,12 @@ class VM {
                     self.exitCode = 2
                     return nil
                 }
-                self.stack.push(ccounter)
                 self.stack.push(registers[5])
                 self.stack.push(registers[6])
                 self.stack.push(registers[7])
                 self.stack.push(registers[8])
                 self.stack.push(registers[9])
+                self.stack.push(ccounter)
                 ccounter = location
                 return ccounter
             case .ret:

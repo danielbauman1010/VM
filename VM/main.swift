@@ -15,6 +15,8 @@ func readTextFileFromDiskMac(filePath: String)->String{
     return result!
 }
 
+
+
 var run: Bool = true
 let vm: VM = VM()
 enum commands {
