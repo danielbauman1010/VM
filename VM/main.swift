@@ -10,14 +10,6 @@ import Foundation
 
 extension String : CollectionType {}
 
-func getLineFromConsoleMac()->String{
-    let BUFSIZE = 1024
-    var buf = [CChar](count:BUFSIZE, repeatedValue:CChar(0))
-    fgets(&buf, Int32(BUFSIZE), stdin)
-    var line: String = String.fromCString(buf)!
-    line = line.substringToIndex(line.endIndex.predecessor())
-    return line
-}
 func readTextFileFromDiskMac(filePath: String)->String{
     let result = try? String(contentsOfFile: filePath, encoding: NSUTF8StringEncoding)
     return result!
@@ -44,7 +36,7 @@ let ops = [
 ]
 while run{
     print("Enter command:")
-    let option = getLineFromConsoleMac()
+    let option = vm.getLineFromConsoleMac()
     let parts = option.split(" ")
     if let command = ops[parts[0]] {
         switch command{

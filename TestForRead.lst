@@ -1,0 +1,52 @@
+.Start AskForName
+Age:	.Integer #0
+Grade:	.Integer #0
+Space:	.Integer #32
+NewLine:	.Integer #10
+NameMess:	.String "Enter name:"
+AgeMess:	.String "Enter Age:"
+GradeMess:	.String "Enter Grade:"
+WelcomeMess: .String "Welcome"
+EndMess:	.String "!"
+;r0 will store the newline character
+;r1 will store the space character
+;r2 will contain the name's length
+AskForName:	movmr NewLine r0
+			movmr Space r1
+			outs NameMess
+			outcr r0
+			readln Name r2
+PrintWelcome:	outs WelcomeMess
+				outcr r1
+				outs Name
+				outs EndMess
+End:	halt
+		.end
+		
+Name:	.String "<Name>"
+.Start AskForName
+Age:	.Integer #0
+Grade:	.Integer #0
+Space:	.Integer #32
+NewLine:	.Integer #10
+NameMess:	.String "Enter name:"
+AgeMess:	.String "Enter Age:"
+GradeMess:	.String "Enter Grade:"
+WelcomeMess: .String "Welcome"
+EndMess:	.String "!"
+;r0 will store the newline character
+;r1 will store the space character
+;r2 will contain the name's length
+AskForName:	movmr NewLine r0
+			movmr Space r1
+			outs NameMess
+			outcr r0
+			readln Name r2
+PrintWelcome:	outs WelcomeMess
+				outcr r1
+				outs Name
+				outs EndMess
+End:	halt
+		.end
+		
+Name:	.String "<Name>"

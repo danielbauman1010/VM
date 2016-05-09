@@ -13,7 +13,6 @@ class VM {
     var rPC: Int?
     var rCP: Int?
     var rST: Int?
-    var retAdress: Int? //return address
     var exitCode: Int
     var stack: Stack
     enum commands {
@@ -32,9 +31,19 @@ class VM {
         case jsr, ret
         case push, pop, stackc
         case outci, outcr, outcx, outcb
+        case readi, readc, readln
         case movrx, movxx
         case printi, outs
         case jmpne
+    }
+    
+    func getLineFromConsoleMac()->String{
+        let BUFSIZE = 1024
+        var buf = [CChar](count:BUFSIZE, repeatedValue:CChar(0))
+        fgets(&buf, Int32(BUFSIZE), stdin)
+        var line: String = String.fromCString(buf)!
+        line = line.substringToIndex(line.endIndex.predecessor())
+        return line
     }
     var ops  = [
         0: commands.halt,
@@ -53,8 +62,8 @@ class VM {
         39: commands.jsr, 40: commands.ret,
         41: commands.push, 42: commands.pop, 43: commands.stackc,
         44: commands.outci, 45: commands.outcr, 46: commands.outcx, 47: commands.outcb,
+        48: commands.readi, 49: commands.printi, 50: commands.readc, 51: commands.readln,
         53: .movrx, 54: .movxx,
-        49: commands.printi,
         55: commands.outs,
         57: commands.jmpne
     ]
@@ -66,7 +75,6 @@ class VM {
         self.rST = nil
         self.exitCode = 0
         self.stack = Stack(size: 1000)
-        self.retAdress = nil
     }
 
     func processFile(var lines: [String]){
@@ -686,12 +694,12 @@ class VM {
                 return ccounter
             case .jsr:
                 ccounter = ccounter + 1
-                self.retAdress = ccounter
                 let location = memory[ccounter]
                 if location < 0 && location > self.memory.count {
                     self.exitCode = 2
                     return nil
                 }
+                self.stack.push(ccounter)
                 self.stack.push(registers[5])
                 self.stack.push(registers[6])
                 self.stack.push(registers[7])
@@ -700,16 +708,12 @@ class VM {
                 ccounter = location
                 return ccounter
             case .ret:
-                if self.retAdress == nil{
-                    print("Fatal error: trying to return without entering a subroutine")
-                    return nil
-                }
+                ccounter = self.stack.pop()!
                 registers[9] = self.stack.pop()!
                 registers[8] = self.stack.pop()!
                 registers[7] = self.stack.pop()!
                 registers[6] = self.stack.pop()!
                 registers[5] = self.stack.pop()!
-                ccounter = self.retAdress!
                 ccounter = ccounter + 1
                 return ccounter
             case .push:
@@ -809,6 +813,27 @@ class VM {
                 }
                 ccounter = ccounter + 1
                 return ccounter
+            case .readi:
+                ccounter = ccounter + 1
+                let r1 = memory[ccounter]
+                if r1 < 0 || r1 > 9 {
+                    exitCode = 3
+                    return nil
+                }
+                ccounter = ccounter + 1
+                let r2 = memory[ccounter]
+                if r2 < 0 || r2 > 9 {
+                    exitCode = 3
+                    return nil
+                }
+                ccounter = ccounter + 1
+                if let i: Int? = Int(self.getLineFromConsoleMac())?.hashValue{
+                    registers[r1] = i!
+                    registers[r2] = 0
+                    return ccounter
+                }
+                registers[r2] = 1
+                return ccounter
             case .printi:
                 ccounter = ccounter + 1
                 let r1 = memory[ccounter]
@@ -818,6 +843,41 @@ class VM {
                 }
                 print("\(registers[r1])", terminator:   "")
                 ccounter = ccounter + 1
+                return ccounter
+            case .readc:
+                ccounter = ccounter + 1
+                let r1 = memory[ccounter]
+                if r1 < 0 || r1 > 9 {
+                    exitCode = 3
+                    return nil
+                }
+                ccounter = ccounter + 1
+                let char = self.getLineFromConsoleMac() as NSString
+                registers[r1] = Int(char.characterAtIndex(0))
+                return ccounter
+            case .readln:
+                ccounter = ccounter + 1
+                var location = memory[ccounter]
+                ccounter = ccounter + 1
+                let r1 = memory[ccounter]
+                ccounter = ccounter + 1
+                if r1 < 0 || r1 > 9 {
+                    self.exitCode = 3
+                    return nil
+                }
+                if location < 0 || location > self.memory.count {
+                    self.exitCode = 2
+                    return nil
+                }
+                let line = self.getLineFromConsoleMac() as NSString
+                memory[location] = line.length
+                registers[r1] = line.length
+                location = location + 1
+                for i in Range(start:   0,end:  line.length){
+                    memory[location] = Int(line.characterAtIndex(i))
+                    location = location + 1
+                }
+                
                 return ccounter
             case .movrx:
                 ccounter = ccounter + 1
