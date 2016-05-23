@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6520D8E41CF34A4E00DDA932 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6520D8E31CF34A4E00DDA932 /* Input.swift */; };
+		652A409B1CF0C8AE000617E1 /* Assembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652A409A1CF0C8AE000617E1 /* Assembler.swift */; };
 		6550A2221CC97C9200AE8DF4 /* Stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6550A2211CC97C9200AE8DF4 /* Stack.swift */; };
 		65C7B2851CB3DD41009311BF /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7B2841CB3DD41009311BF /* main.swift */; };
 		65C7B28C1CB3DD62009311BF /* VM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7B28B1CB3DD62009311BF /* VM.swift */; };
@@ -25,6 +27,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6520D8E31CF34A4E00DDA932 /* Input.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
+		652A409A1CF0C8AE000617E1 /* Assembler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Assembler.swift; path = ../Assembler.swift; sourceTree = "<group>"; };
 		6550A2211CC97C9200AE8DF4 /* Stack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stack.swift; sourceTree = "<group>"; };
 		65C7B2811CB3DD41009311BF /* VM */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VM; sourceTree = BUILT_PRODUCTS_DIR; };
 		65C7B2841CB3DD41009311BF /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -64,6 +68,8 @@
 				65C7B2841CB3DD41009311BF /* main.swift */,
 				65C7B28B1CB3DD62009311BF /* VM.swift */,
 				6550A2211CC97C9200AE8DF4 /* Stack.swift */,
+				652A409A1CF0C8AE000617E1 /* Assembler.swift */,
+				6520D8E31CF34A4E00DDA932 /* Input.swift */,
 			);
 			path = VM;
 			sourceTree = "<group>";
@@ -125,6 +131,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6520D8E41CF34A4E00DDA932 /* Input.swift in Sources */,
+				652A409B1CF0C8AE000617E1 /* Assembler.swift in Sources */,
 				65C7B28C1CB3DD62009311BF /* VM.swift in Sources */,
 				6550A2221CC97C9200AE8DF4 /* Stack.swift in Sources */,
 				65C7B2851CB3DD41009311BF /* main.swift in Sources */,

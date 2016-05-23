@@ -16,39 +16,9 @@ class VM {
     var exitCode: Int
     var stack: Stack
     enum commands {
-        case halt, clrr, clrx, clrm, clrb, movir, movrr,movrm, movmr, movxr, movar, movb, addir, addrr, addmr, addxr, subir, subrr, submr, subxr, mulir, mulrr, mulmr, mulxr, divir, divrr, divmr, divxr, jmp, sojz, sojnz, aojz, aojnz, cmpir, cmprr, cmpmr, jmpn, jmpz, jmpp, jsr, ret, push, pop, stackc, outci, outcr, outcx, outcb, readi, readc, readln, movrx, movxx, printi, outs, jmpne
+        case halt, clrr, clrx, clrm, clrb, movir, movrr,movrm, movmr, movxr, movar, movb, addir, addrr, addmr, addxr, subir, subrr, submr, subxr, mulir, mulrr, mulmr, mulxr, divir, divrr, divmr, divxr, jmp, sojz, sojnz, aojz, aojnz, cmpir, cmprr, cmpmr, jmpn, jmpz, jmpp, jsr, ret, push, pop, stackc, outci, outcr, outcx, outcb, movrx, movxx, printi, outs, jmpne
     }
-    
-    func getLineFromConsoleMac()->String{
-        let BUFSIZE = 1024
-        var buf = [CChar](count:BUFSIZE, repeatedValue:CChar(0))
-        fgets(&buf, Int32(BUFSIZE), stdin)
-        var line: String = String.fromCString(buf)!
-        line = line.substringToIndex(line.endIndex.predecessor())
-        return line
-    }
-    var ops  = [
-        0: commands.halt,
-        1: commands.clrr, 2: commands.clrx, 3: commands.clrm, 4: commands.clrb,
-        5: commands.movir, 6:  commands.movrr, 7:  commands.movrm, 8:  commands.movmr,
-        9:  commands.movxr, 10: commands.movar, 11: commands.movb,
-        12: commands.addir, 13: commands.addrr, 14: commands.addmr, 15: commands.addxr,
-        16: commands.subir, 17: commands.subrr, 18: commands.submr, 19: commands.subxr,
-        20: commands.mulir, 21: commands.mulrr,22: commands.mulmr,23: commands.mulxr,
-        24: commands.divir, 25: commands.divrr,26: commands.divmr,27: commands.divxr,
-        28: commands.jmp,
-        29: commands.sojz, 30: commands.sojnz,
-        31: commands.aojz, 32: commands.aojnz,
-        33: commands.cmpir, 34: commands.cmprr, 35: commands.cmpmr,
-        36: commands.jmpn, 37: commands.jmpz, 38: commands.jmpp,
-        39: commands.jsr, 40: commands.ret,
-        41: commands.push, 42: commands.pop, 43: commands.stackc,
-        44: commands.outci, 45: commands.outcr, 46: commands.outcx, 47: commands.outcb,
-        48: commands.readi, 49: commands.printi, 50: commands.readc, 51: commands.readln,
-        53: .movrx, 54: .movxx,
-        55: commands.outs,
-        57: commands.jmpne
-    ]
+    var ops  = [0: commands.halt, 1: commands.clrr, 2: commands.clrx, 3: commands.clrm, 4: commands.clrb, 5: commands.movir, 6:  commands.movrr, 7:  commands.movrm, 8:  commands.movmr, 9:  commands.movxr, 10: commands.movar, 11: commands.movb, 12: commands.addir, 13: commands.addrr, 14: commands.addmr, 15: commands.addxr, 16: commands.subir, 17: commands.subrr, 18: commands.submr, 19: commands.subxr, 20: commands.mulir, 21: commands.mulrr,22: commands.mulmr,23: commands.mulxr, 24: commands.divir, 25: commands.divrr,26: commands.divmr,27: commands.divxr, 28: commands.jmp, 29: commands.sojz, 30: commands.sojnz, 31: commands.aojz, 32: commands.aojnz, 33: commands.cmpir, 34: commands.cmprr, 35: commands.cmpmr, 36: commands.jmpn, 37: commands.jmpz, 38: commands.jmpp, 39: commands.jsr, 40: commands.ret, 41: commands.push, 42: commands.pop, 43: commands.stackc, 44: commands.outci, 45: commands.outcr, 46: commands.outcx, 47: commands.outcb, 49: commands.printi, 53: .movrx, 54: .movxx, 55: commands.outs, 57: commands.jmpne ]
     init() {
         self.memory = [Int](count: 1000, repeatedValue: 0)
         self.registers = [Int](count: 10, repeatedValue: 0)
@@ -58,875 +28,709 @@ class VM {
         self.exitCode = 0
         self.stack = Stack(size: 1000)
     }
-
     func processFile(var lines: [String]){
-        var iterations: Int = 0
         self.exitCode = 0
         if let _: Int? = Int(lines.removeFirst()) {
             if let counter = Int(lines.removeFirst()) {
                 rPC = counter
-                    if fillMemory(lines) {
-                        while let newCounter = executeCommand(rPC!) {
-                            rPC = newCounter
-                            iterations++
-                        }
-                        
-                        switch exitCode{
-                        case 1: print("\nFatal Error: Devide by 0")
-                        case 2: print("\nFatal Error: Attempt to access non-existent memory")
-                        case 3: print("\nFatal Error: Attempt to access non-existent register")
-                        case 4: print("\nFatal Error: Attempt to execute illegal operation")
-                        default: print("\nProgram ended successfully")
-                        }
-                        
-                    } else {
-                        print("This program is too long for the memory to hold.")
+                if fillMemory(lines) {
+                    while executeCommand() {
+                        rPC = rPC! + 1
                     }
+                    switch exitCode{
+                    case 1: print("\nFatal Error: Devide by 0")
+                    case 2: print("\nFatal Error: Attempt to access non-existent memory")
+                    case 3: print("\nFatal Error: Attempt to access non-existent register")
+                    case 4: print("\nFatal Error: Attempt to execute illegal operation")
+                    default: print("\nProgram ended successfully")
+                    }
+                } else {
+                    print("This program is too long for the memory to hold.")
+                }
             }
         }
         
     }
-    
-    func executeCommand(var ccounter: Int)->Int? {
-        if let command = ops[memory[ccounter]] {
+    func readmem()->Int{
+        self.rPC = self.rPC! + 1
+        let result = memory[self.rPC!]
+        return result
+    }
+    func getregister(r: Int)->Int?{
+        if (r >= 0 && r < 10) {
+            return registers[r]
+        }
+        self.exitCode = 3
+        return nil
+    }
+    func getmemory(location: Int)->Int?{
+        if (location >= 0 && location < memory.count) {
+            return memory[location]
+        }
+        
+        return nil
+    }
+    func executeCommand()->Bool {
+        if let command = ops[memory[rPC!]] {
             switch command {
             case .halt:
-                return nil
+                return false
             case .clrr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                if let _ = getregister(r1) {
+                    registers[r1] = 0
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                registers[r1] = 0
-                ccounter = ccounter + 1
-                return ccounter
             case .clrx:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                if let location = getregister(r1) {
+                    if let _ = getmemory(location) {
+                        memory[location] = 0
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                let location = registers[r1]
-                if location < 0 && location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                memory[location] = 0
-                ccounter = ccounter + 1
-                return ccounter
             case .clrm:
-                ccounter = ccounter + 1
+                let location = readmem()
+                if let _ = getmemory(location) {
+                    memory[location] = 0
+                } else {
+                    self.exitCode = 2
+                    return false
+                }
             case .clrb:
-                ccounter = ccounter + 1
-                let start = memory[ccounter]
-                ccounter = ccounter + 1
-                let duration = memory[ccounter]
+                let start = readmem()
+                let duration = readmem()
                 for i in Range(start: start,end: duration+start){
                     memory[i] = 0
                 }
-                ccounter = ccounter + 1
-                return ccounter
             case .movir:
-                ccounter = ccounter + 1
-                let constant = memory[ccounter]
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let constant = readmem()
+                let r1 = readmem()
+                if let _ = getregister(r1) {
+                    registers[r1] = constant
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                ccounter = ccounter + 1
-                registers[r1] = constant
-                return ccounter
             case .movrr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                let r2 = readmem()
+                if let _ = getregister(r2) {
+                    if let value = getregister(r1) {
+                        registers[r2] = value
+                    } else {
+                        self.exitCode = 3
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                registers[r2] = registers[r1]
-                ccounter = ccounter + 1
-                return ccounter
             case .movrm:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                let location = readmem()
+                if let value = getregister(r1) {
+                    if let _ = getmemory(location) {
+                        memory[location] = value
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                ccounter = ccounter + 1
-                memory[location] = registers[r1]
-                return ccounter
             case .movmr:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                let location = readmem()
+                let r1 = readmem()
+                if let value = getmemory(location) {
+                    if let _ = getregister(r1) {
+                        registers[r1] = value
+                    } else {
+                        self.exitCode = 3
+                        return false
+                    }
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                registers[r1] = memory[location]
-                ccounter = ccounter + 1
-                return ccounter
             case .movxr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                let r2 = readmem()
+                if let location = getregister(r1) {
+                    if let value = getmemory(location) {
+                        if let _ = getregister(r2) {
+                            registers[r2] = value
+                        } else {
+                            self.exitCode = 2
+                            return false
+                        }
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                if registers[r1] < 0 && registers[r1] > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                registers[r2] = memory[registers[r1]]
-                ccounter = ccounter + 1
-                return ccounter
             case .movar:
-                ccounter = ccounter + 1
-                let address = memory[ccounter]
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let address = readmem()
+                let r1 = readmem()
+                if let _ = getregister(r1) {
+                    registers[r1] = address
                 }
-                ccounter = ccounter + 1
-                registers[r1] = address
-                return ccounter
             case .movb:
-                ccounter = ccounter + 1
-                let source = memory[ccounter]
-                ccounter = ccounter + 1
-                let dest = memory[ccounter]
-                ccounter = ccounter + 1
-                let count = memory[ccounter]
-                ccounter = ccounter + 1
+                let source = readmem()
+                let dest = readmem()
+                let count = readmem()
                 for i in Range(start: source,end: source+count) {
                     memory[dest+(i-source)] = memory[i]
                 }
-                return ccounter
             case .addir:
-                ccounter = ccounter + 1
-                let constant = memory[ccounter]
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let constant = readmem()
+                let r1 = readmem()
+                if let value = getregister(r1) {
+                    registers[r1] = value + constant
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                registers[r1] = registers[r1] + constant
-                ccounter = ccounter + 1
-                return ccounter
             case .addrr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        registers[r2] = valr1 + valr2
+                    } else {
+                        exitCode = 3
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                registers[r2] = registers[r1] + registers[r2]
-                ccounter = ccounter + 1
-                return ccounter
             case .addmr:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let location = readmem()
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let value = getmemory(location) {
+                        registers[r1] = valr1 + value
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                registers[r1] = registers[r1] + memory[location]
-                return ccounter
             case .addxr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        if let value = getmemory(valr1) {
+                            registers[r2] = valr2 + value
+                        } else {
+                            self.exitCode = 2
+                            return false
+                        }
+                    } else {
+                        exitCode = 3
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                if registers[r1] < 0 && registers[r1] > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                registers[r2] = registers[r2] + memory[registers[r1]]
-                return ccounter
             case .subir:
-                ccounter = ccounter + 1
-                let constant = memory[ccounter]
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let constant = readmem()
+                let r1 = readmem()
+                if let value = getregister(r1) {
+                    registers[r1] = value - constant
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                registers[r1] = registers[r1] - constant
-                return ccounter
             case .subrr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        registers[r2] = valr2 - valr1
+                    } else {
+                        exitCode = 3
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                registers[r2] = registers[r2] - registers[r1]
-                return ccounter
             case .submr:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
+                let location = readmem()
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let value = getmemory(location) {
+                        registers[r1] = valr1 - value
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                ccounter = ccounter + 1
-                registers[r1] = registers[r1] - memory[location]
-                return ccounter
             case .subxr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        if let value = getmemory(valr1) {
+                            registers[r2] = valr2 - value
+                        } else {
+                            self.exitCode = 2
+                            return false
+                        }
+                    } else {
+                        exitCode = 3
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                if registers[r1] < 0 && registers[r1] > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                registers[r2] = registers[r2] - memory[registers[r1]]
-                return ccounter
             case .mulir:
-                ccounter = ccounter + 1
-                let constant = memory[ccounter]
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let constant = readmem()
+                let r1 = readmem()
+                if let value = getregister(r1) {
+                    registers[r1] = value * constant
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                registers[r1] = registers[r1] * constant
-                return ccounter
             case .mulrr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        registers[r2] = valr1 * valr2
+                    } else {
+                        exitCode = 3
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                registers[r2] = registers[r2] * registers[r1]
-                return ccounter
             case .mulmr:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let location = readmem()
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let value = getmemory(location) {
+                        registers[r1] = valr1 * value
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                registers[r1] = registers[r1] * memory[location]
-                return ccounter
             case .mulxr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        if let value = getmemory(valr1) {
+                            registers[r2] = valr2 * value
+                        } else {
+                            self.exitCode = 2
+                            return false
+                        }
+                    } else {
+                        exitCode = 3
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                if registers[r1] < 0 && registers[r1] > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                registers[r2] = registers[r2] * memory[registers[r1]]
-                return ccounter
             case .divir:
-                ccounter = ccounter + 1
-                let constant = memory[ccounter]
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let constant = readmem()
+                let r1 = readmem()
+                if let value = getregister(r1) {
+                    if constant != 0 {
+                        registers[r1] = value / constant
+                    } else {
+                        self.exitCode = 1
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                if constant == 0 {
-                    self.exitCode = 1
-                    return nil
-                }
-                registers[r1] = registers[r1] / constant
-                return ccounter
             case .divrr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        registers[r2] = valr2 / valr1
+                    } else {
+                        exitCode = 3
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                if registers[r1] == 0 {
-                    self.exitCode = 1
-                    return nil
-                }
-                registers[r2] = registers[r2] / registers[r1]
-                return ccounter
             case .divmr:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let location = readmem()
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let value = getmemory(location) {
+                        registers[r1] = valr1 / value
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if memory[location] == 0 {
-                    self.exitCode = 1
-                    return nil
-                }
-                registers[r1] = registers[r1] / memory[location]
-                return ccounter
             case .divxr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        if let value = getmemory(valr1) {
+                            registers[r2] = valr2 / value
+                        } else {
+                            self.exitCode = 2
+                            return false
+                        }
+                    } else {
+                        exitCode = 3
+                        return false
+                    }
+                } else {
                     exitCode = 3
-                    return nil
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                if registers[r1] < 0 && registers[r1] > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                if memory[registers[r1]] == 0 {
-                    self.exitCode = 1
-                    return nil
-                }
-                registers[r2] = registers[r2] / memory[registers[r1]]
-                return ccounter
             case .jmp:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                let location = readmem()
+                if let _ = getmemory(location) {
+                    rPC = location - 1
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                ccounter = location
-                return ccounter
             case .sojz:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                let location = readmem()
+                if let valr1 = getregister(r1) {
+                    registers[r1] = valr1 - 1
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                if let _ = getmemory(location) {
+                    if registers[r1] == 0 {
+                        rPC = location - 1
+                    }
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                ccounter = ccounter + 1
-                registers[r1] = registers[r1] - 1
-                if registers[r1] == 0 {
-                    ccounter = location
-                }
-                return ccounter
             case .sojnz:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                let r1 = readmem()
+                let location = readmem()
+                if let valr1 = getregister(r1) {
+                    registers[r1] = valr1 - 1
+                } else {
+                    self.exitCode = 3
+                    return false
+                }
+                if let _ = getmemory(location) {
+                    if registers[r1] != 0 {
+                        rPC = location - 1
+                    }
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                registers[r1] = registers[r1] - 1
-                if registers[r1] != 0 {
-                    ccounter = location
-                }
-                return ccounter
             case .aojz:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                let r1 = readmem()
+                let location = readmem()
+                if let valr1 = getregister(r1) {
+                    registers[r1] = valr1 + 1
+                } else {
+                    self.exitCode = 3
+                    return false
+                }
+                if let _ = getmemory(location) {
+                    if registers[r1] == 0 {
+                        rPC = location - 1
+                    }
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                registers[r1] = registers[r1] + 1
-                if registers[r1] == 0 {
-                    ccounter = location
-                }
-                return ccounter
             case .aojnz:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                let r1 = readmem()
+                let location = readmem()
+                if let valr1 = getregister(r1) {
+                    registers[r1] = valr1 + 1
+                } else {
+                    self.exitCode = 3
+                    return false
+                }
+                if let _ = getmemory(location) {
+                    if registers[r1] != 0 {
+                        rPC = location - 1
+                    }
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                registers[r1] = registers[r1] + 1
-                if registers[r1] != 0 {
-                    ccounter = location
-                }
-                return ccounter
             case .cmpir:
-                ccounter = ccounter + 1
-                let constant = memory[ccounter]
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let constant = readmem()
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    let result = valr1 - constant
+                    self.rCP = result
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                ccounter = ccounter + 1
-                let result = registers[r1] - constant
-                self.rCP = result
-                return ccounter
             case .cmprr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        let result = valr2 - valr1
+                        self.rCP = result
+                    } else {
+                        self.exitCode = 3
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                let result = registers[r2] - registers[r1]
-                self.rCP = result
-                ccounter = ccounter + 1
-                return ccounter
             case .cmpmr:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
+                let location = readmem()
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let value = getmemory(location) {
+                        let result = valr1 - value
+                        self.rCP = result
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                let result = registers[r1] - memory[location]
-                self.rCP = result
-                return ccounter
             case .jmpn:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                let location = readmem()
+                if let _ = getmemory(location) {
+                    if self.rCP < 0 {
+                        rPC = location - 1
+                    }
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                if self.rCP < 0 {
-                    ccounter = location
-                }
-                ccounter = ccounter + 1
-                return ccounter
             case .jmpz:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                ccounter = ccounter + 1
-                if location < 0 && location > self.memory.count {
+                let location = readmem()
+                if let _ = getmemory(location) {
+                    if self.rCP == 0 {
+                        rPC = location - 1
+                    }
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                if self.rCP == 0 {
-                    ccounter = location
-                }
-                
-                return ccounter
             case .jmpp:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                let location = readmem()
+                if let _ = getmemory(location) {
+                    if self.rCP > 0 {
+                        rPC = location - 1
+                    }
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                if self.rCP > 0 {
-                    ccounter = location
-                }
-                ccounter = ccounter + 1
-                return ccounter
             case .jsr:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
+                let location = readmem()
+                if let _ = getmemory(location) {
+                    self.stack.push(registers[5])
+                    self.stack.push(registers[6])
+                    self.stack.push(registers[7])
+                    self.stack.push(registers[8])
+                    self.stack.push(registers[9])
+                    self.stack.push(rPC!)
+                    rPC = location - 1
+                } else {
                     self.exitCode = 2
-                    return nil
+                    return false
                 }
-                self.stack.push(registers[5])
-                self.stack.push(registers[6])
-                self.stack.push(registers[7])
-                self.stack.push(registers[8])
-                self.stack.push(registers[9])
-                self.stack.push(ccounter)
-                ccounter = location
-                return ccounter
             case .ret:
-                ccounter = self.stack.pop()!
+                rPC = self.stack.pop()!
                 registers[9] = self.stack.pop()!
                 registers[8] = self.stack.pop()!
                 registers[7] = self.stack.pop()!
                 registers[6] = self.stack.pop()!
                 registers[5] = self.stack.pop()!
-                ccounter = ccounter + 1
-                return ccounter
             case .push:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    self.exitCode = 3
-                    return nil
-                }
-                if self.stack.push(registers[r1]) {
-                    self.rST = 0
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    if self.stack.push(valr1) {
+                        self.rST = 0
+                    } else {
+                        self.rST = 1
+                    }
                 } else {
-                    self.rST = 1
-                }
-                ccounter = ccounter + 1
-                return ccounter
-            case .pop:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
                     self.exitCode = 3
-                    return nil
+                    return false
                 }
+            case .pop:
+                let r1 = readmem()
                 if let result = self.stack.pop() {
-                    registers[r1] = result
-                    self.rST = 0
+                    if let _ = getregister(r1) {
+                        registers[r1] = result
+                        self.rST = 0
+                    } else {
+                        self.exitCode = 3
+                        return false
+                    }
                 } else {
                     self.rST = 2
                 }
-                ccounter = ccounter + 1
-                return ccounter
             case .stackc:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                if let _ = getregister(r1) {
+                    registers[r1] = rST!
+                } else {
                     self.exitCode = 3
-                    return nil
+                    return false
                 }
-                registers[r1] = rST!
             case .outci:
-                ccounter = ccounter + 1
-                let char = memory[ccounter]
+                let char = readmem()
                 let character = "\(String(UnicodeScalar(char)))"
                 print("\(character)", terminator:   "")
-                ccounter = ccounter + 1
-                return ccounter
             case .outcr:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                if let _ = getregister(r1) {
+                    let character = "\(String(UnicodeScalar(registers[r1])))"
+                    print("\(character)", terminator:   "")
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                let character = "\(String(UnicodeScalar(registers[r1])))"
-                print("\(character)", terminator:   "")
-                ccounter = ccounter + 1
-                return ccounter
             case .outcx:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let value = getmemory(valr1) {
+                        let character = "\(String(UnicodeScalar(value)))"
+                        print("\(character)", terminator:   "")
+                    } else {
+                        self.exitCode = 2
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
                 }
-                if registers[r1] < 0 || registers[r1] > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                let character = "\(String(UnicodeScalar(memory[registers[r1]])))"
-                print("\(character)", terminator:   "")
-                ccounter = ccounter + 1
-                return ccounter
             case .outcb:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                if registers[r1] < 0 || registers[r1] > memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                if registers[r2] < 0 || registers[r2] > memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
+                let r1 = readmem()
+                let r2 = readmem()
                 for i in Range(start: registers[r1], end: registers[r1]+registers[r2]) {
                     let character = "\(String(UnicodeScalar(memory[i])))"
                     print("\(character)", terminator:   "")
                 }
-                ccounter = ccounter + 1
-                return ccounter
-            case .readi:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                if r2 < 0 || r2 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                ccounter = ccounter + 1
-                if let i: Int? = Int(self.getLineFromConsoleMac())?.hashValue{
-                    registers[r1] = i!
-                    registers[r2] = 0
-                    return ccounter
-                }
-                registers[r2] = 1
-                return ccounter
             case .printi:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                print("\(registers[r1])", terminator:   "")
-                ccounter = ccounter + 1
-                return ccounter
-            case .readc:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                if r1 < 0 || r1 > 9 {
-                    exitCode = 3
-                    return nil
-                }
-                ccounter = ccounter + 1
-                let char = self.getLineFromConsoleMac() as NSString
-                registers[r1] = Int(char.characterAtIndex(0))
-                return ccounter
-            case .readln:
-                ccounter = ccounter + 1
-                var location = memory[ccounter]
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                if r1 < 0 || r1 > 9 {
+                let r1 = readmem()
+                if let valr1 = getregister(r1) {
+                    print("\(valr1)", terminator:   "")
+                } else {
                     self.exitCode = 3
-                    return nil
+                    return false
                 }
-                if location < 0 || location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
-                }
-                let line = self.getLineFromConsoleMac() as NSString
-                memory[location] = line.length
-                registers[r1] = line.length
-                location = location + 1
-                for i in Range(start:   0,end:  line.length){
-                    memory[location] = Int(line.characterAtIndex(i))
-                    location = location + 1
-                }
-                
-                return ccounter
             case .movrx:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                if r1 < 0 || r1 > 9 || r2 < 0 || r2 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        if let _ = getmemory(valr2) {
+                            memory[valr2] = valr1
+                        } else {
+                            self.exitCode = 2
+                            return false
+                        }
+                    } else {
+                        self.exitCode = 3
+                        return false
+                    }
+                } else {
                     self.exitCode = 3
-                    return nil
+                    return false
                 }
-                if registers[r2] < 0 || registers[r2] > self.memory.count {
-                        self.exitCode = 2
-                        return nil
-                }
-                ccounter = ccounter + 1
-                memory[registers[r2]] = registers[r1]
-                return ccounter
             case .movxx:
-                ccounter = ccounter + 1
-                let r1 = memory[ccounter]
-                ccounter = ccounter + 1
-                let r2 = memory[ccounter]
-                if r1 < 0 || r1 > 9 || r2 < 0 || r2 > 9 {
+                let r1 = readmem()
+                let r2 = readmem()
+                if let valr1 = getregister(r1) {
+                    if let valr2 = getregister(r2) {
+                        if let _ = getmemory(valr2) {
+                            if let value = getmemory(valr1) {
+                                memory[valr2] = value
+                            } else {
+                                self.exitCode = 2
+                                return false
+                            }
+                        } else {
+                            self.exitCode = 2
+                            return false
+                        }
+                    } else {
+                        self.exitCode = 3
+                        return false
+                    }
+                } else {
                     self.exitCode = 3
-                    return nil
+                    return false
                 }
-                if registers[r1] < 0 || registers[r1] > self.memory.count
-                    || registers[r2] < 0 || registers[r2] > self.memory.count {
-                        self.exitCode = 2
-                        return nil
-                }
-                ccounter = ccounter + 1
-                memory[registers[r2]] = memory[registers[r1]]
-                return ccounter
             case .outs:
-                ccounter = ccounter + 1
-                let location = memory[ccounter]
-                if location < 0 && location > self.memory.count {
-                    self.exitCode = 2
-                    return nil
+                let location = readmem()
+                if let value = getmemory(location) {
+                    let length = value
+                    let beginning = location + 1
+                    let end = beginning + length
+                    for counter in beginning...end {
+                        let charascii = memory[counter]
+                        let character = String(UnicodeScalar(charascii))
+                        print("\(character)", terminator:   "")
+                    }
                 }
-                let newcounter = location
-                let length = memory[newcounter]
-                let beginning = location + 1
-                let end = beginning + length
-                for counter in beginning...end {
-                    let charascii = memory[counter]
-                    let character = String(UnicodeScalar(charascii))
-                    print("\(character)", terminator:   "")
-                }
-                ccounter = ccounter + 1
-                return ccounter
             case .jmpne:
                 if let result = rCP {
-                    ccounter = ccounter + 1
-                    let location = memory[ccounter]
+                    let location = readmem()
                     if result != 0 {
-                        ccounter = location
-                        return ccounter
+                        rCP = location - 1
                     }
-                    ccounter = ccounter + 1
-                    return ccounter
                 }
             }
+            return true
         }
         self.exitCode = 4
-        return nil
+        return false
     }
     func fillMemory(newMemory: [String])->Bool {
         if newMemory.count <= self.memory.count {
@@ -940,4 +744,4 @@ class VM {
         }
         return false
     }
-    }
+}

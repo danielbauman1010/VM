@@ -8,14 +8,6 @@
 
 import Foundation
 
-extension String : CollectionType {}
-
-func readTextFileFromDiskMac(filePath: String)->String{
-    let result = try? String(contentsOfFile: filePath, encoding: NSUTF8StringEncoding)
-    return result!
-}
-
-
 
 var run: Bool = true
 let vm: VM = VM()
@@ -38,7 +30,7 @@ let ops = [
 ]
 while run{
     print("Enter command:")
-    let option = vm.getLineFromConsoleMac()
+    let option = getLineFromConsoleMac()
     let parts = option.split(" ")
     if let command = ops[parts[0]] {
         switch command{
