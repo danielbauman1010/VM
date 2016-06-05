@@ -1,8 +1,9 @@
 title 3 
-sep 24 
+sep 36 
 newline 2 
-loop 49 
-fin 70 
-fib 27 
+loop 61 
+fin 82 
+fib 39 
 begin 0 
 end 1 
+something 24 

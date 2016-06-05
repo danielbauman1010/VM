@@ -15,10 +15,7 @@ class VM {
     var rST: Int?
     var exitCode: Int
     var stack: Stack
-    enum commands {
-        case halt, clrr, clrx, clrm, clrb, movir, movrr,movrm, movmr, movxr, movar, movb, addir, addrr, addmr, addxr, subir, subrr, submr, subxr, mulir, mulrr, mulmr, mulxr, divir, divrr, divmr, divxr, jmp, sojz, sojnz, aojz, aojnz, cmpir, cmprr, cmpmr, jmpn, jmpz, jmpp, jsr, ret, push, pop, stackc, outci, outcr, outcx, outcb, movrx, movxx, printi, outs, jmpne
-    }
-    var ops  = [0: commands.halt, 1: commands.clrr, 2: commands.clrx, 3: commands.clrm, 4: commands.clrb, 5: commands.movir, 6:  commands.movrr, 7:  commands.movrm, 8:  commands.movmr, 9:  commands.movxr, 10: commands.movar, 11: commands.movb, 12: commands.addir, 13: commands.addrr, 14: commands.addmr, 15: commands.addxr, 16: commands.subir, 17: commands.subrr, 18: commands.submr, 19: commands.subxr, 20: commands.mulir, 21: commands.mulrr,22: commands.mulmr,23: commands.mulxr, 24: commands.divir, 25: commands.divrr,26: commands.divmr,27: commands.divxr, 28: commands.jmp, 29: commands.sojz, 30: commands.sojnz, 31: commands.aojz, 32: commands.aojnz, 33: commands.cmpir, 34: commands.cmprr, 35: commands.cmpmr, 36: commands.jmpn, 37: commands.jmpz, 38: commands.jmpp, 39: commands.jsr, 40: commands.ret, 41: commands.push, 42: commands.pop, 43: commands.stackc, 44: commands.outci, 45: commands.outcr, 46: commands.outcx, 47: commands.outcb, 49: commands.printi, 53: .movrx, 54: .movxx, 55: commands.outs, 57: commands.jmpne ]
+
     init() {
         self.memory = [Int](count: 1000, repeatedValue: 0)
         self.registers = [Int](count: 10, repeatedValue: 0)
@@ -71,7 +68,7 @@ class VM {
         return nil
     }
     func executeCommand()->Bool {
-        if let command = ops[memory[rPC!]] {
+        if let command = numberToCommand[memory[rPC!]] {
             switch command {
             case .halt:
                 return false

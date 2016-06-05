@@ -11,7 +11,7 @@ import Foundation
 
 var run: Bool = true
 let vm: VM = VM()
-enum commands {
+enum InterfaceCommands {
     case asm,run,debug,exit,help
 }
 func help() {
@@ -21,21 +21,30 @@ func help() {
     print("exit - exits the VM")
     print("help - prints commands")
 }
-let ops = [
-    "asm": commands.asm,
-    "run": commands.run,
-    "debug": commands.debug,
-    "exit": commands.exit,
-    "help": commands.help
+let options = [
+    "asm": InterfaceCommands.asm,
+    "run": InterfaceCommands.run,
+    "debug": InterfaceCommands.debug,
+    "exit": InterfaceCommands.exit,
+    "help": InterfaceCommands.help
 ]
+var tokenizer = Tokenizer()
+
 while run{
     print("Enter command:")
     let option = getLineFromConsoleMac()
     let parts = option.split(" ")
-    if let command = ops[parts[0]] {
+    if let command = options[parts[0]] {
         switch command{
         case .asm:
-            print("not supported yet.")
+            let lines = readTextFileFromDiskMac(parts[1]).split("\n")
+            for line in lines {
+                let tokens: [Token] = tokenizer.tokenize(line)
+                for token in tokens {
+                    print(token, terminator: " ")
+                }
+                print("")
+            }
         case .run:
             vm.processFile(readTextFileFromDiskMac(parts[1]).split("\n"))
         case .debug:
