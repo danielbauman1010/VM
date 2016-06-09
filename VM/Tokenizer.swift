@@ -14,14 +14,15 @@ class Tokenizer {
     }
     func tokenize(input: String)->[Token] {
         tokens.removeAll()
+        let digits = "0123456789"
         let chunks: [String] = makeChunks(input)
-        for c in chunks {
-            if c.startsWith("r") {
+        for var c in chunks {
+            if (c.startsWith("r") && (c as NSString).length == 2 && digits.contains(c.last!)) {
                 let r = handleRegister(c)
                 tokens.append(r)
             } else if c.startsWith("\"") && c.last == "\"" {
-                let _ = c.dropLast()
-                let _ = c.dropFirst()
+                c = c.dropLast()
+                c = c.dropFirst()
                 var stringToken = Token(type: .ImmediateString)
                 stringToken.stringValue = c
                 tokens.append(stringToken)
@@ -38,6 +39,8 @@ class Tokenizer {
             else if c.last == ":" {
                 let ld = handleLabelDefinition(c)
                 tokens.append(ld)
+            } else if c.startsWith(";") {
+                return tokens                        
             } else {
                 let iol = handleInstructionOrLabel(c)
                 tokens.append(iol)
@@ -58,17 +61,17 @@ class Tokenizer {
     func handleDirective(var d: String)->Token {
         d = d.dropFirst()
         var dToken: Token
-        switch d {
-        case "Integer":
+        switch d.lowercaseString {
+        case "integer":
             dToken = Token(type: .Directive)
             dToken.directiveType = .Integer
-        case "String":
+        case "string":
             dToken = Token(type: .Directive)
             dToken.directiveType = .String
-        case "Tuple":
+        case "tuple":
             dToken = Token(type: .Directive)
             dToken.directiveType = .Tuple
-        case "Start":
+        case "start":
             dToken = Token(type: .Directive)
             dToken.directiveType = .Start
         case "end":
@@ -140,40 +143,46 @@ class Tokenizer {
     func makeChunks(input: String)->[String]{
         var chunks = [String]()
         let notabs = input.stringByReplacingOccurrencesOfString("\t", withString: " ")
-        var splitspace = notabs.componentsSeparatedByString(" ")
-        splitspace = splitspace.filter({$0 != ""})
+        let chrarr = Array(notabs.characters)
         var i = 0
-        while i < (splitspace.count) {
-            if splitspace[i].containsString("\"") {
-                let (result, newI) = makeChunksH(splitspace, current: i, character: "\"")
-                i = newI + 1
-                chunks.append(result)
-            } else if splitspace[i].containsString("\\") {
-                let (result, newI) = makeChunksH(splitspace, current: i, character: "\\")
-                i = newI + 1
+        var currentWord = ""
+        while i < (chrarr.count) {
+            if chrarr[i] == " " {
+                if !currentWord.isEmpty {
+                    chunks.append(currentWord)
+                    currentWord = ""
+                }
+            } else if chrarr[i] == "\"" || chrarr[i] == "\\" {
+                chunks.append(currentWord)
+                currentWord = ""
+                let (result, newI) = makeChunksH(chrarr, current: i)
+                i = newI
                 chunks.append(result)
             } else {
-                chunks.append(splitspace[i])
+                currentWord += "\(chrarr[i])"
             }
             i++
         }
+        if !currentWord.isEmpty {
+            chunks.append(currentWord)
+        }
         return chunks
     }
-    func makeChunksH(input: [String], current: Int, character: String)->(String,Int){
+    func makeChunksH(input: [Character], current: Int)->(String,Int){
         var resultString: String = ""
-        var resultLocation: Int = current
-        resultString += input[current] + " "
-        for i in Range(start: (current+1), end: (input.count)) {
-            if input[i].containsString(character) {
-                resultString += input[i]
-                resultLocation = i
-                return (resultString, resultLocation+1)
+        let character: Character = input[current]
+        resultString += "\(input[current])"
+        var location: Int = current + 1
+        while location < input.count {
+            if input[location] == character {
+                resultString += "\(input[location])"
+                return (resultString, location)
             } else {
-                resultString += input[i]
-                resultString += " "
+                resultString += "\(input[location])"
             }
+            location = location + 1
         }
-        return (resultString, resultLocation)
+        return (resultString, location)
     }
 }
 enum TokenType {

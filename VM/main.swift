@@ -11,6 +11,7 @@ import Foundation
 
 var run: Bool = true
 let vm: VM = VM()
+let assembler: Assembler = Assembler()
 enum InterfaceCommands {
     case asm,run,debug,exit,help
 }
@@ -28,7 +29,6 @@ let options = [
     "exit": InterfaceCommands.exit,
     "help": InterfaceCommands.help
 ]
-var tokenizer = Tokenizer()
 
 while run{
     print("Enter command:")
@@ -37,16 +37,10 @@ while run{
     if let command = options[parts[0]] {
         switch command{
         case .asm:
-            let lines = readTextFileFromDiskMac(parts[1]).split("\n")
-            for line in lines {
-                let tokens: [Token] = tokenizer.tokenize(line)
-                for token in tokens {
-                    print(token, terminator: " ")
-                }
-                print("")
-            }
+            let lines = readTextFileFromDiskMac("\(parts[1]).txt").split("\n")
+            assembler.assmeble(lines)
         case .run:
-            vm.processFile(readTextFileFromDiskMac(parts[1]).split("\n"))
+            vm.processFile(readTextFileFromDiskMac("\(parts[1]).bin").split("\n"))
         case .debug:
             print("not supported yet.")
         case .exit:

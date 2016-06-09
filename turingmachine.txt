@@ -61,10 +61,10 @@ Left:	jsr PrintLeft
 Right:	jsr PrintRight
 	jmp Next
 PrintRight:	movir #114 r7
-		outcr r7			
+		outcr r7	
 		ret
 PrintLeft:	movir #108 r7
-		outcr r7			
+		outcr r7
 		ret
 			
 ;r1 will contain the initial state
