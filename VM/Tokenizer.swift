@@ -15,7 +15,8 @@ class Tokenizer {
     func tokenize(input: String)->[Token] {
         tokens.removeAll()
         let digits = "0123456789"
-        let chunks: [String] = makeChunks(input)
+        var chunks: [String] = makeChunks(input)
+        chunks = chunks.filter({$0 != ""})
         for var c in chunks {
             if (c.startsWith("r") && (c as NSString).length == 2 && digits.contains(c.last!)) {
                 let r = handleRegister(c)
@@ -55,7 +56,7 @@ class Tokenizer {
             return iToken
         }
         var lToken = Token(type: .Label)
-        lToken.stringValue = iol
+        lToken.stringValue = iol.lowercaseString
         return lToken
     }
     func handleDirective(var d: String)->Token {
@@ -64,19 +65,19 @@ class Tokenizer {
         switch d.lowercaseString {
         case "integer":
             dToken = Token(type: .Directive)
-            dToken.directiveType = .Integer
+            dToken.stringValue = "integer"
         case "string":
             dToken = Token(type: .Directive)
-            dToken.directiveType = .String
+            dToken.stringValue = "string"
         case "tuple":
             dToken = Token(type: .Directive)
-            dToken.directiveType = .Tuple
+            dToken.stringValue = "tuple"
         case "start":
             dToken = Token(type: .Directive)
-            dToken.directiveType = .Start
+            dToken.stringValue = "start"
         case "end":
             dToken = Token(type: .Directive)
-            dToken.directiveType = .end
+            dToken.stringValue = "end"
         default:
             dToken = Token(type: .BadToken)
         }
@@ -126,7 +127,7 @@ class Tokenizer {
     func handleLabelDefinition(var ld: String)->Token{
         ld = ld.dropLast()
         var ldToken = Token(type: .LabelDefinition)
-        ldToken.stringValue = ld
+        ldToken.stringValue = ld.lowercaseString
         return ldToken
     }
     func handleRegister(var register: String)-> Token{
@@ -196,26 +197,22 @@ enum TokenType {
     case Directive
     case BadToken
 }
-enum DirectiveType{
-    case Integer,String,Tuple,Start,end
-}
+
 struct Token: CustomStringConvertible {
     let type: TokenType
     var intValue: Int?
     var stringValue: String?
     var tupleValue: Tuple?
-    var directiveType: DirectiveType?
     init(type: TokenType) {
         self.type = type
         self.intValue = nil
         self.stringValue = nil
         self.tupleValue = nil
-        self.directiveType = nil
     }
     var description: String {
         var output: String = ""
         switch type{
-        case .Directive: output += "Directive: \(directiveType!)"
+        case .Directive: output += "Directive: \(stringValue!)"
         case .ImmediateInteger: output += "Immediate Integer: \(intValue!)"
         case .ImmediateString: output += "Immediate String: \(stringValue!)"
         case .Instruction: output += "Instruction"

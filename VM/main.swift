@@ -38,11 +38,11 @@ while run{
         switch command{
         case .asm:
             let lines = readTextFileFromDiskMac("\(parts[1]).txt").split("\n")
-            assembler.assmeble(lines)
+            assembler.assemble(lines, filename: parts[1])
         case .run:
-            vm.processFile(readTextFileFromDiskMac("\(parts[1]).bin").split("\n"))
+            vm.processFile(readTextFileFromDiskMac("\(parts[1]).bin").split("\n"),debug: false)
         case .debug:
-            print("not supported yet.")
+            vm.processFile(readTextFileFromDiskMac("\(parts[1]).bin").split("\n"),debug: true)
         case .exit:
             run = false
         case .help:

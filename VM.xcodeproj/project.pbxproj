@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6520A5E41D0E4E9300253327 /* Debugger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6520A5E31D0E4E9300253327 /* Debugger.swift */; };
 		6520D8E41CF34A4E00DDA932 /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6520D8E31CF34A4E00DDA932 /* Input.swift */; };
 		6550A2221CC97C9200AE8DF4 /* Stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6550A2211CC97C9200AE8DF4 /* Stack.swift */; };
 		65C7B2851CB3DD41009311BF /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C7B2841CB3DD41009311BF /* main.swift */; };
@@ -28,6 +29,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6520A5E31D0E4E9300253327 /* Debugger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Debugger.swift; sourceTree = "<group>"; };
 		6520D8E31CF34A4E00DDA932 /* Input.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
 		6550A2211CC97C9200AE8DF4 /* Stack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stack.swift; sourceTree = "<group>"; };
 		65C7B2811CB3DD41009311BF /* VM */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VM; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,6 +75,7 @@
 				6520D8E31CF34A4E00DDA932 /* Input.swift */,
 				65FCB5B81CFA778100F99231 /* Assembler.swift */,
 				65FCB5B61CFA776D00F99231 /* Tokenizer.swift */,
+				6520A5E31D0E4E9300253327 /* Debugger.swift */,
 			);
 			path = VM;
 			sourceTree = "<group>";
@@ -135,6 +138,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6520D8E41CF34A4E00DDA932 /* Input.swift in Sources */,
+				6520A5E41D0E4E9300253327 /* Debugger.swift in Sources */,
 				65FCB5B71CFA776D00F99231 /* Tokenizer.swift in Sources */,
 				65C7B28C1CB3DD62009311BF /* VM.swift in Sources */,
 				6550A2221CC97C9200AE8DF4 /* Stack.swift in Sources */,

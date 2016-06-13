@@ -7,7 +7,7 @@
 //
 
 import Foundation
-class VM {
+class VM: DebuggerHelper{
     var memory: [Int]
     var registers: [Int]
     var rPC: Int?
@@ -15,7 +15,7 @@ class VM {
     var rST: Int?
     var exitCode: Int
     var stack: Stack
-
+    var debugger: Debugger?
     init() {
         self.memory = [Int](count: 1000, repeatedValue: 0)
         self.registers = [Int](count: 10, repeatedValue: 0)
@@ -24,8 +24,15 @@ class VM {
         self.rST = nil
         self.exitCode = 0
         self.stack = Stack(size: 1000)
+        self.debugger = nil
     }
-    func processFile(var lines: [String]){
+    func initializeDebugger() {
+        self.debugger = Debugger(helper: self)
+    }
+    func processFile(var lines: [String], debug: Bool){
+        if debug{
+            initializeDebugger()
+        }
         self.exitCode = 0
         if let _: Int? = Int(lines.removeFirst()) {
             if let counter = Int(lines.removeFirst()) {
@@ -39,6 +46,7 @@ class VM {
                     case 2: print("\nFatal Error: Attempt to access non-existent memory")
                     case 3: print("\nFatal Error: Attempt to access non-existent register")
                     case 4: print("\nFatal Error: Attempt to execute illegal operation")
+
                     default: print("\nProgram ended successfully")
                     }
                 } else {
@@ -653,6 +661,25 @@ class VM {
                     let character = "\(String(UnicodeScalar(memory[i])))"
                     print("\(character)", terminator:   "")
                 }
+            case .readi:
+                let r1 = readmem()
+                let r2 = readmem()
+                if let _ = getregister(r1) {
+                    if let _ = getregister(r2) {
+                        if let i = Int(getLineFromConsoleMac()) {
+                            registers[r1] = i
+                            registers[r2] = 0
+                        } else {
+                            registers[r2] = 1
+                        }
+                    } else {
+                        self.exitCode = 3
+                        return false
+                    }
+                } else {
+                    self.exitCode = 3
+                    return false
+                }
             case .printi:
                 let r1 = readmem()
                 if let valr1 = getregister(r1) {
@@ -660,6 +687,37 @@ class VM {
                 } else {
                     self.exitCode = 3
                     return false
+                }
+            case .readc:
+                let r1 = readmem()
+                if let _ = getregister(r1) {
+                    registers[r1] = Int(getLineFromConsoleMac().utf8.first!)
+                } else {
+                    self.exitCode = 3
+                    return false
+                }
+            case .readln:
+                var location = readmem()
+                let r1 = readmem()
+                if let _ = getmemory(location) {
+                    if let _ = getregister(r1) {
+                        let line = getLineFromConsoleMac()
+                        for i in line.characters {
+                            memory[location] = Int(String(i).utf8.first!)
+                            location = location + 1
+                        }
+                        registers[r1] = line.characters.count
+                    } else {
+                        self.exitCode = 3
+                        return false
+                    }
+                } else {
+                    self.exitCode = 2
+                    return false
+                }
+            case .brk:
+                if debugger != nil {
+                    
                 }
             case .movrx:
                 let r1 = readmem()
@@ -716,11 +774,13 @@ class VM {
                         print("\(character)", terminator:   "")
                     }
                 }
+            case .nop:
+                return true
             case .jmpne:
                 if let result = rCP {
                     let location = readmem()
                     if result != 0 {
-                        rCP = location - 1
+                        rPC = location - 1
                     }
                 }
             }
@@ -740,5 +800,23 @@ class VM {
             return true
         }
         return false
+    }
+    func getMemoryAtAddress(address: Int) -> Int {
+        return memory[address]
+    }
+    func setMemoryAtAddress(address: Int, value: Int) {
+        memory[address] = value
+    }
+    func getRegisterNumber(number: Int) -> Int {
+        return registers[number]
+    }
+    func setRegisterNumber(number: Int, value: Int) {
+        registers[number] = value
+    }
+    func getPC() -> Int {
+        return self.rPC!
+    }
+    func setPC(value: Int) {
+        self.rPC = value
     }
 }
